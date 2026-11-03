@@ -66,6 +66,7 @@
                           IsChecked="True" IsEnabled="False" Click="OnZoneFilterClick"/>
                 <Separator/>
                 <MenuItem x:Name="ZoneInfoItem" Header="Границы не заданы" IsEnabled="False"/>
+
                 <MenuItem Header="Тяните точки · двойной клик по отрезку — вставить · Delete — удалить"
                           IsEnabled="False"/>
             </MenuItem>
