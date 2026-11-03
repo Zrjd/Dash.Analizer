@@ -1,0 +1,10 @@
+bin/
+obj/
+*.suo
+*.user
+*.userossync
+*.sln.roslyn
+*.filters
+*.vs
+Settings.local.cs
+UserSettings.cs

@@ -1,0 +1,209 @@
+﻿<Window x:Class="DashAnalizer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:DashAnalizer.Controls"
+        Title="DashAnalizer — карта заезда"
+        Height="800" Width="1280"
+        MinHeight="500" MinWidth="800"
+        WindowStartupLocation="CenterScreen"
+        KeyDown="OnWindowKeyDown">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Файл">
+                <MenuItem Header="Открыть CSV…" Click="OnOpenClick"/>
+                <Separator/>
+                <MenuItem x:Name="CacheMenu" Header="Кэш карт">
+                    <MenuItem x:Name="ExportCacheItem" Header="Экспорт в ZIP…" Click="OnExportCacheClick"/>
+                    <MenuItem x:Name="ImportCacheItem" Header="Импорт из ZIP…" Click="OnImportCacheClick"/>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Вид">
+                <MenuItem Header="Вписать трек" Click="OnFitClick"/>
+                <MenuItem x:Name="MenuTilesItem" Header="Подложка" IsCheckable="True"
+                          IsChecked="True" Checked="OnMenuTilesChanged" Unchecked="OnMenuTilesChanged"/>
+                <MenuItem x:Name="MenuSatelliteItem" Header="Спутниковая карта" IsCheckable="True"
+                          Checked="OnMenuSatelliteChanged" Unchecked="OnMenuSatelliteChanged"/>
+                <MenuItem x:Name="MenuAccelItem" Header="Вектор ускорения" IsCheckable="True"
+                          IsEnabled="False" Checked="OnMenuAccelChanged" Unchecked="OnMenuAccelChanged"/>
+            </MenuItem>
+            <MenuItem Header="_Круг">
+                <MenuItem x:Name="SetLapLineItem" Header="Задать начало круга…" IsCheckable="True"
+                          Click="OnSetLapLineClick"/>
+                <MenuItem x:Name="ClearLapLineItem" Header="Убрать метку круга" IsEnabled="False"
+                          Click="OnClearLapLineClick"/>
+            </MenuItem>
+            <MenuItem x:Name="LapsMenu" Header="_Круги" IsEnabled="False"/>
+            <MenuItem x:Name="SectorsMenu" Header="_Сектора">
+                <MenuItem x:Name="AddSectorLineItem" Header="Добавить границу…" IsCheckable="True"
+                          Click="OnSetSectorLineClick"/>
+                <MenuItem x:Name="RemoveSectorLineItem" Header="Убрать последнюю границу" IsEnabled="False"
+                          Click="OnRemoveSectorLineClick"/>
+                <MenuItem x:Name="ClearSectorLinesItem" Header="Очистить границы" IsEnabled="False"
+                          Click="OnClearSectorLinesClick"/>
+                <Separator/>
+                <MenuItem x:Name="SectorListMenu" Header="Список секторов" IsEnabled="False"/>
+                <Separator/>
+                <MenuItem x:Name="BestLapMenu" Header="Лучший круг" IsEnabled="False">
+                    <MenuItem x:Name="BestLapAutoItem" Header="Собрать автоматически"
+                              Click="OnBestLapAutoClick"/>
+                    <MenuItem x:Name="BestLapShowItem" Header="Показать на карте" IsCheckable="True"
+                              Click="OnBestLapShowClick"/>
+                    <Separator/>
+                    <MenuItem x:Name="BestLapPickerMenu" Header="Выбор секторов" IsEnabled="False"/>
+                    <Separator/>
+                    <MenuItem x:Name="BestLapSummaryItem" Header="Итог" IsEnabled="False"/>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Трасса">
+                <MenuItem x:Name="SetLeftBoundaryItem" Header="Задать левую границу…" IsCheckable="True"
+                          Click="OnSetLeftBoundaryClick"/>
+                <MenuItem x:Name="SetRightBoundaryItem" Header="Задать правую границу…" IsCheckable="True"
+                          Click="OnSetRightBoundaryClick"/>
+                <MenuItem x:Name="ClearBoundariesItem" Header="Убрать границы" IsEnabled="False"
+                          Click="OnClearBoundariesClick"/>
+                <Separator/>
+                <MenuItem x:Name="ZoneFilterItem" Header="Учитывать только точки внутри" IsCheckable="True"
+                          IsChecked="True" IsEnabled="False" Click="OnZoneFilterClick"/>
+                <Separator/>
+                <MenuItem x:Name="ZoneInfoItem" Header="Границы не заданы" IsEnabled="False"/>
+                <MenuItem Header="Тяните точки · двойной клик по отрезку — вставить · Delete — удалить"
+                          IsEnabled="False"/>
+            </MenuItem>
+        </Menu>
+
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Button Content="Открыть CSV…" Padding="10,3" Click="OnOpenClick"/>
+                <Button Content="Вписать трек" Padding="10,3" Click="OnFitClick"/>
+                <Separator/>
+                <ToggleButton x:Name="TilesToggle" Content="Подложка" Padding="10,3"
+                              IsChecked="True" Checked="OnTilesToggleChanged"
+                              Unchecked="OnTilesToggleChanged"/>
+                <ToggleButton x:Name="SatelliteToggle" Content="Спутник" Padding="10,3"
+                              Checked="OnSatelliteToggleChanged"
+                              Unchecked="OnSatelliteToggleChanged"/>
+                <Separator/>
+                <ToggleButton x:Name="AccelToggle" Content="Вектор ускорения" Padding="10,3"
+                              IsEnabled="False" Checked="OnAccelToggleChanged"
+                              Unchecked="OnAccelToggleChanged"/>
+                <Separator/>
+                <TextBlock x:Name="FileText" VerticalAlignment="Center" MaxWidth="560"
+                           TextTrimming="CharacterEllipsis"/>
+            </ToolBar>
+        </ToolBarTray>
+
+        <DockPanel DockPanel.Dock="Bottom" Margin="6,0,6,2">
+            <StatusBar DockPanel.Dock="Bottom" Margin="0,2,0,0">
+                <StatusBarItem>
+                    <TextBlock x:Name="PointsText"/>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <TextBlock x:Name="RangeText"/>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <TextBlock x:Name="CurrentText"/>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <TextBlock x:Name="LapText"/>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <TextBlock x:Name="SectorText"/>
+                </StatusBarItem>
+                <Separator/>
+                <StatusBarItem>
+                    <TextBlock x:Name="AccelText"/>
+                </StatusBarItem>
+            </StatusBar>
+
+            <Grid Margin="0,2,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="PlayButton" Grid.Column="0" Content="▶ Пуск" Width="100"
+                        Margin="0,0,10,0" VerticalAlignment="Center" IsEnabled="False"
+                        Click="OnPlayClick"/>
+
+                <Slider x:Name="TimeSlider" Grid.Column="1" Minimum="0" Maximum="0"
+                        IsEnabled="False" VerticalAlignment="Center"
+                        ValueChanged="OnTimeSliderChanged"/>
+
+                <TextBlock x:Name="TimeText" Grid.Column="2" Margin="10,0,0,0"
+                           VerticalAlignment="Center" FontFamily="Consolas"/>
+            </Grid>
+        </DockPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <controls:TrackMapControl x:Name="Map" Grid.Column="0" Margin="6,6,0,6"
+                                      LapLineCompleted="OnLapLineCompleted"
+                                      SectorLineCompleted="OnSectorLineCompleted"
+                                      LeftBoundaryCompleted="OnLeftBoundaryCompleted"
+                                      RightBoundaryCompleted="OnRightBoundaryCompleted"
+                                      LeftBoundaryEdited="OnLeftBoundaryEdited"
+                                      RightBoundaryEdited="OnRightBoundaryEdited"
+                                      TrackPointClicked="OnTrackPointClicked"/>
+
+            <Border Grid.Column="1" Width="280" Margin="6"
+                    Background="#FFF9F9F9" BorderBrush="#FFDDDDDD" BorderThickness="1" CornerRadius="3">
+                <DockPanel>
+                    <DockPanel DockPanel.Dock="Top" Margin="8,8,8,4">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                            <Button Content="Все" Padding="8,2" Click="OnSelectAllIndicators"/>
+                            <Button Content="Снять" Padding="8,2" Margin="4,0,0,0" Click="OnClearIndicators"/>
+                        </StackPanel>
+                        <TextBlock Text="Показатели" FontWeight="Bold" VerticalAlignment="Center"/>
+                    </DockPanel>
+
+                    <Border x:Name="LapStatsBox" DockPanel.Dock="Top" Visibility="Collapsed"
+                            Margin="0,0,0,6" Padding="6,5"
+                            Background="#FFEDF3FB" BorderBrush="#FFC9D6E8" BorderThickness="1" CornerRadius="3">
+                        <StackPanel>
+                            <TextBlock Text="Статистика кругов" FontWeight="Bold" FontSize="11"/>
+                            <TextBlock x:Name="StatsText" Margin="0,3,0,0" FontSize="11" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border x:Name="BestLapBox" DockPanel.Dock="Top" Visibility="Collapsed"
+                            Margin="0,0,0,6" Padding="6,5"
+                            Background="#FFEDFBEF" BorderBrush="#FFC9E8D2" BorderThickness="1" CornerRadius="3">
+                        <StackPanel>
+                            <TextBlock Text="Лучший круг" FontWeight="Bold" FontSize="11"/>
+                            <TextBlock x:Name="BestLapText" Margin="0,3,0,0" FontSize="11" TextWrapping="Wrap"/>
+                            <CheckBox x:Name="BestLapShowBox" Content="Показать на карте" Margin="0,4,0,0"
+                                      FontSize="11" Checked="OnBestLapShowChecked"
+                                      Unchecked="OnBestLapShowChecked"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border x:Name="SectorStatsBox" DockPanel.Dock="Top" Visibility="Collapsed"
+                            Margin="0,0,0,6" Padding="6,5"
+                            Background="#FFF3EDFB" BorderBrush="#FFD6C9E8" BorderThickness="1" CornerRadius="3">
+                        <StackPanel>
+                            <TextBlock Text="Статистика секторов" FontWeight="Bold" FontSize="11"/>
+                            <TextBlock x:Name="SectorStatsText" Margin="0,3,0,0" FontSize="11" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <TextBlock DockPanel.Dock="Bottom" Margin="8,4,8,8" FontSize="10"
+                               Foreground="#FF777777" TextWrapping="Wrap"
+                               Text="Отметьте чекбоксами показатели из LogFile.csv — значения обновляются при перемотке времени."/>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel x:Name="IndicatorList" Margin="8,0,8,4"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>
